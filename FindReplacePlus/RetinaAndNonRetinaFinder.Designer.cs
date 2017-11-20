@@ -37,6 +37,7 @@
             this.findButton = new System.Windows.Forms.Button();
             this.srcsetTextBox = new System.Windows.Forms.TextBox();
             this.srcsetLabel = new System.Windows.Forms.Label();
+            this.showOnlyEntriesWithNonRetinaCheckBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // label1
@@ -109,11 +110,23 @@
             this.srcsetLabel.TabIndex = 13;
             this.srcsetLabel.Text = "srcset Attribute Based on Selection";
             // 
+            // showOnlyEntriesWithNonRetinaCheckBox
+            // 
+            this.showOnlyEntriesWithNonRetinaCheckBox.AutoSize = true;
+            this.showOnlyEntriesWithNonRetinaCheckBox.Location = new System.Drawing.Point(719, 109);
+            this.showOnlyEntriesWithNonRetinaCheckBox.Name = "showOnlyEntriesWithNonRetinaCheckBox";
+            this.showOnlyEntriesWithNonRetinaCheckBox.Size = new System.Drawing.Size(225, 17);
+            this.showOnlyEntriesWithNonRetinaCheckBox.TabIndex = 14;
+            this.showOnlyEntriesWithNonRetinaCheckBox.Text = "Show only images with non-retina versions";
+            this.showOnlyEntriesWithNonRetinaCheckBox.UseVisualStyleBackColor = true;
+            this.showOnlyEntriesWithNonRetinaCheckBox.CheckedChanged += new System.EventHandler(this.showOnlyEntriesWithNonRetinaCheckBox_CheckedChanged);
+            // 
             // RetinaAndNonRetinaFinder
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1048, 742);
+            this.Controls.Add(this.showOnlyEntriesWithNonRetinaCheckBox);
             this.Controls.Add(this.srcsetLabel);
             this.Controls.Add(this.srcsetTextBox);
             this.Controls.Add(this.findButton);
@@ -140,5 +153,6 @@
         private System.Windows.Forms.Button findButton;
         private System.Windows.Forms.TextBox srcsetTextBox;
         private System.Windows.Forms.Label srcsetLabel;
+        private System.Windows.Forms.CheckBox showOnlyEntriesWithNonRetinaCheckBox;
     }
 }

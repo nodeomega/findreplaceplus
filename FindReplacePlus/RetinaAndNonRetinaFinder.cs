@@ -61,25 +61,7 @@ namespace FindReplacePlus
 
         private void findButton_Click(object sender, EventArgs e)
         {
-            retinaFinderTreeView.Nodes.Clear();
-            IEnumerable<string> test = GetFileList("*@2x*", baseFolderTextBox.Text);
-
-            foreach (string s in test)
-            {
-                string[] extension = s.Split('.');
-                string nonRetina =
-                    $"{s.Split(new[] {"@2x"}, StringSplitOptions.None)[0]}.{extension[extension.Length - 1]}";
-
-                TreeNode retinaRoot = new TreeNode(s);
-                if (File.Exists(nonRetina))
-                {
-                    retinaRoot.Nodes.Add(new TreeNode(nonRetina));
-                }
-
-                retinaFinderTreeView.Nodes.Add(retinaRoot);
-
-                //matchingFilesCheckedListBox.Items.Add(s, CheckState.Checked);
-            }
+            FindRetinaAndNonRetina();
         }
 
         private void retinaFinderTreeView_AfterSelect(object sender, TreeViewEventArgs e)
@@ -90,6 +72,43 @@ namespace FindReplacePlus
             srcsetTextBox.Text =
                 $@"srcset=""{e.Node.Nodes[0]?.Text.Replace(baseFolderTextBox.Text, string.Empty).Replace(@"\", @"/")} 1x, {e.Node.Text
                     .Replace(baseFolderTextBox.Text, string.Empty).Replace(@"\", @"/")} 2x""";
+        }
+
+        private void showOnlyEntriesWithNonRetinaCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            FindRetinaAndNonRetina();
+        }
+
+        private void FindRetinaAndNonRetina()
+        {
+            try
+            {
+                retinaFinderTreeView.Nodes.Clear();
+                IEnumerable<string> test = GetFileList("*@2x*", baseFolderTextBox.Text);
+
+                foreach (string s in test)
+                {
+                    string[] extension = s.Split('.');
+                    string nonRetina =
+                        $"{s.Split(new[] { "@2x" }, StringSplitOptions.None)[0]}.{extension[extension.Length - 1]}";
+
+                    TreeNode retinaRoot = new TreeNode(s);
+                    if (File.Exists(nonRetina))
+                    {
+                        retinaRoot.Nodes.Add(new TreeNode(nonRetina));
+                    }
+
+                    if (!showOnlyEntriesWithNonRetinaCheckBox.Checked || showOnlyEntriesWithNonRetinaCheckBox.Checked && retinaRoot.Nodes.Count > 0)
+                        retinaFinderTreeView.Nodes.Add(retinaRoot);
+
+                    //matchingFilesCheckedListBox.Items.Add(s, CheckState.Checked);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message);
+                return;
+            }
         }
     }
 }
