@@ -41,6 +41,7 @@
             this.searchProcessLabel = new System.Windows.Forms.Label();
             this.consoleLogListBox = new System.Windows.Forms.ListBox();
             this.statusLabel = new System.Windows.Forms.Label();
+            this.showOnlyImageSetsFoundInFiles = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // label1
@@ -122,7 +123,6 @@
             this.showOnlyEntriesWithNonRetinaCheckBox.TabIndex = 14;
             this.showOnlyEntriesWithNonRetinaCheckBox.Text = "Show only images with non-retina versions";
             this.showOnlyEntriesWithNonRetinaCheckBox.UseVisualStyleBackColor = true;
-            this.showOnlyEntriesWithNonRetinaCheckBox.CheckedChanged += new System.EventHandler(this.showOnlyEntriesWithNonRetinaCheckBox_CheckedChanged);
             // 
             // searchProcessLabel
             // 
@@ -150,11 +150,22 @@
             this.statusLabel.TabIndex = 18;
             this.statusLabel.Text = "Waiting...";
             // 
+            // showOnlyImageSetsFoundInFiles
+            // 
+            this.showOnlyImageSetsFoundInFiles.AutoSize = true;
+            this.showOnlyImageSetsFoundInFiles.Location = new System.Drawing.Point(719, 132);
+            this.showOnlyImageSetsFoundInFiles.Name = "showOnlyImageSetsFoundInFiles";
+            this.showOnlyImageSetsFoundInFiles.Size = new System.Drawing.Size(254, 17);
+            this.showOnlyImageSetsFoundInFiles.TabIndex = 19;
+            this.showOnlyImageSetsFoundInFiles.Text = "And only show image sets referenced in any files";
+            this.showOnlyImageSetsFoundInFiles.UseVisualStyleBackColor = true;
+            // 
             // RetinaAndNonRetinaFinder
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1048, 742);
+            this.Controls.Add(this.showOnlyImageSetsFoundInFiles);
             this.Controls.Add(this.statusLabel);
             this.Controls.Add(this.consoleLogListBox);
             this.Controls.Add(this.searchProcessLabel);
@@ -190,5 +201,6 @@
         private System.Windows.Forms.Label searchProcessLabel;
         private System.Windows.Forms.ListBox consoleLogListBox;
         private System.Windows.Forms.Label statusLabel;
+        private System.Windows.Forms.CheckBox showOnlyImageSetsFoundInFiles;
     }
 }

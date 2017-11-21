@@ -77,8 +77,6 @@ namespace FindReplacePlus
                     .Replace(baseFolderTextBox.Text, string.Empty).Replace(@"\", @"/")} 2x""";
         }
 
-        private async void showOnlyEntriesWithNonRetinaCheckBox_CheckedChanged(object sender, EventArgs e) => await Task.Run(FindRetinaAndNonRetina);
-
         private async Task FindRetinaAndNonRetina()
         {
             try
@@ -95,11 +93,10 @@ namespace FindReplacePlus
                 await Task.Run(delegate
                 {
                     // We need to keep the thread process alive until everything is processed.
-                    List<Task> taskList = new List<Task>();
+                    //List<Task> taskList = new List<Task>();
 
 
-                    Parallel.ForEach(test, opt, s =>
-                    //foreach (string s in test)
+                    ParallelLoopResult par = Parallel.ForEach(test, opt, s =>
                     {
                         string[] extension = s.Split('.');
                         string nonRetina =
@@ -107,40 +104,49 @@ namespace FindReplacePlus
 
                         TreeNode retinaRoot = new TreeNode(s);
 
-                        taskList.Add(Task.Run(() =>
+                        //taskList.Add(Task.Run(() =>
+                        //{
+                        _retina.ChangeData($"Checking non-retina for {s}...", null);
+                        if (File.Exists(nonRetina))
                         {
-                            //consoleLogListBox.Items.Add($"Checking non-retina for {s}...");
-                            _retina.ChangeData($"Checking non-retina for {s}...", null);
-                            if (File.Exists(nonRetina))
+                            TreeNode nonRetinaNode = new TreeNode(nonRetina);
+                            List<string> fileListWhereFound =
+                                GetFileList(@"*.aspx|*.html|*.htm|*.css|*.scss|*.less|*.ascx|*.cshtml",
+                                        baseFolderTextBox.Text,
+                                        nonRetina.Replace(baseFolderTextBox.Text, string.Empty).Replace(@"\", @"/"))
+                                    .ToList();
+
+                            foreach (string fileName in fileListWhereFound)
                             {
-                                TreeNode nonRetinaNode = new TreeNode(nonRetina);
-                                List<string> fileListWhereFound =
-                                    GetFileList(@"*.aspx|*.html|*.htm|*.css|*.scss|*.less|*.ascx|*.cshtml",
-                                            baseFolderTextBox.Text,
-                                            nonRetina.Replace(baseFolderTextBox.Text, string.Empty).Replace(@"\", @"/"))
-                                        .ToList();
-
-                                foreach (string fileName in fileListWhereFound)
-                                {
-                                    nonRetinaNode.Nodes.Add(new TreeNode(fileName));
-                                }
-                                retinaRoot.Nodes.Add(nonRetinaNode);
+                                nonRetinaNode.Nodes.Add(new TreeNode(fileName));
                             }
+                            // filters if set to only show where non-retina images are referenced by any files in the base folder.
+                            if (!showOnlyImageSetsFoundInFiles.Checked ||
+                                showOnlyImageSetsFoundInFiles.Checked && nonRetinaNode.Nodes.Count > 0)
+                                retinaRoot.Nodes.Add(nonRetinaNode);
+                        }
 
-                            if (!showOnlyEntriesWithNonRetinaCheckBox.Checked ||
-                                showOnlyEntriesWithNonRetinaCheckBox.Checked && retinaRoot.Nodes.Count > 0)
-                                _retina.ChangeData(string.Empty, retinaRoot);
-                            //retinaFinderTreeView.Nodes.Add(retinaRoot);
+                        // filters if set to only show retina images with corresponding images.
+                        // filter for only showing non-retina in files if selected will already be applied.
+                        if (!showOnlyEntriesWithNonRetinaCheckBox.Checked ||
+                            showOnlyEntriesWithNonRetinaCheckBox.Checked && retinaRoot.Nodes.Count > 0)
+                            _retina.ChangeData(string.Empty, retinaRoot);
+                        //}));
 
-                            //matchingFilesCheckedListBox.Items.Add(s, CheckState.Checked);
-                        }));
-                    //}
+                        string stillProcessing = "Matching images and finding usages in files.";
+                        UpdateStatus($@"{stillProcessing} | {_retina.QueueCount} currently in queue.", Color.Blue);
                     });
 
-                    while (!Task.WhenAll(taskList).IsCompleted || _retina.QueueCount > 0)
+                    //while (!Task.WhenAll(taskList).IsCompleted || _retina.QueueCount > 0)
+                    while (!par.IsCompleted || _retina.QueueCount > 0)
                     {
-                        int tasksRemaining = (int) taskList?.Count(x => !x.IsCompleted);
-                        UpdateStatus($@"{tasksRemaining} entries remaining to be processed | {_retina.QueueCount} in queue.", Color.Blue);
+                        //int tasksRemaining = (int) taskList?.Count(x => !x.IsCompleted);
+                        //UpdateStatus($@"{tasksRemaining} entries remaining to be processed | {_retina.QueueCount} in queue.", Color.Blue
+
+                        string stillProcessing = par.IsCompleted
+                            ? "File matching completed"
+                            : "Matching images and finding usages in files.";
+                        UpdateStatus($@"{stillProcessing} | {_retina.QueueCount} currently in queue.", Color.Blue);
                     }
                     // stop the process once the parallel is finally done.
                     _retina.Stop();
@@ -182,10 +188,30 @@ namespace FindReplacePlus
                 foreach (string t in tmp)
                 {
                     string text = File.ReadAllText(t);
-                    if (text.Contains(findPattern))
+                    if (!text.Contains(findPattern)) continue;
+                    List<string> lines = text.Split('\n')
+                        .Select((line, idx) => line.Contains(findPattern) ? $"{t}: Line {idx + 1}" : string.Empty)
+                        .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+
+                    // purge the string so it doesn't stay in memory.
+                    text = null;
+
+                    foreach (string line in lines)
                     {
-                        yield return t;
+                        yield return line;
                     }
+
+                    //List<int> lineNum = findPattern.Select((line, idx) => line == '\n' ? idx : -1)
+                    //    .Where(idx => idx > 0).ToList();
+
+                    //for (int fileLine = 0; fileLine < lines.Length; fileLine++)
+                    //{
+                    //    if (lines[fileLine].Contains(findPattern))
+                    //    {
+                    //        yield return $"{t}: Line {fileLine + 1}";
+                    //    }
+                    //}
+                    //string[] lines = File.ReadAllLines(t);
                 }
                 tmp = Directory.GetDirectories(rootFolderPath).ToList();
                 foreach (string t in tmp)
