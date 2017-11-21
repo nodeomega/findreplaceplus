@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FindReplacePlus.Classes;
 
 namespace FindReplacePlus
 {
     public partial class RetinaAndNonRetinaFinder : Form
     {
+        private readonly RetinaTask _retina = new RetinaTask();
+
+        private readonly Thread _thisThread = Thread.CurrentThread;
+
         public RetinaAndNonRetinaFinder()
         {
             InitializeComponent();
@@ -59,9 +62,9 @@ namespace FindReplacePlus
             }
         }
 
-        private void findButton_Click(object sender, EventArgs e)
+        private async void findButton_Click(object sender, EventArgs e)
         {
-            FindRetinaAndNonRetina();
+            await Task.Run(FindRetinaAndNonRetina);
         }
 
         private void retinaFinderTreeView_AfterSelect(object sender, TreeViewEventArgs e)
@@ -74,40 +77,212 @@ namespace FindReplacePlus
                     .Replace(baseFolderTextBox.Text, string.Empty).Replace(@"\", @"/")} 2x""";
         }
 
-        private void showOnlyEntriesWithNonRetinaCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            FindRetinaAndNonRetina();
-        }
+        private async void showOnlyEntriesWithNonRetinaCheckBox_CheckedChanged(object sender, EventArgs e) => await Task.Run(FindRetinaAndNonRetina);
 
-        private void FindRetinaAndNonRetina()
+        private async Task FindRetinaAndNonRetina()
         {
             try
             {
-                retinaFinderTreeView.Nodes.Clear();
-                IEnumerable<string> test = GetFileList("*@2x*", baseFolderTextBox.Text);
+                ClearNodes();
 
-                foreach (string s in test)
+                _retina.Start();
+
+                IEnumerable<string> test = await Task.Run(() => GetFileList("*@2x*", baseFolderTextBox.Text));
+
+                ParallelOptions opt = new ParallelOptions {MaxDegreeOfParallelism = 4};
+
+                //Task process = Task.Factory.StartNew(delegate
+                await Task.Run(delegate
                 {
-                    string[] extension = s.Split('.');
-                    string nonRetina =
-                        $"{s.Split(new[] { "@2x" }, StringSplitOptions.None)[0]}.{extension[extension.Length - 1]}";
+                    // We need to keep the thread process alive until everything is processed.
+                    List<Task> taskList = new List<Task>();
 
-                    TreeNode retinaRoot = new TreeNode(s);
-                    if (File.Exists(nonRetina))
+
+                    Parallel.ForEach(test, opt, s =>
+                    //foreach (string s in test)
                     {
-                        retinaRoot.Nodes.Add(new TreeNode(nonRetina));
+                        string[] extension = s.Split('.');
+                        string nonRetina =
+                            $"{s.Split(new[] {"@2x"}, StringSplitOptions.None)[0]}.{extension[extension.Length - 1]}";
+
+                        TreeNode retinaRoot = new TreeNode(s);
+
+                        taskList.Add(Task.Run(() =>
+                        {
+                            //consoleLogListBox.Items.Add($"Checking non-retina for {s}...");
+                            _retina.ChangeData($"Checking non-retina for {s}...", null);
+                            if (File.Exists(nonRetina))
+                            {
+                                TreeNode nonRetinaNode = new TreeNode(nonRetina);
+                                List<string> fileListWhereFound =
+                                    GetFileList(@"*.aspx|*.html|*.htm|*.css|*.scss|*.less|*.ascx|*.cshtml",
+                                            baseFolderTextBox.Text,
+                                            nonRetina.Replace(baseFolderTextBox.Text, string.Empty).Replace(@"\", @"/"))
+                                        .ToList();
+
+                                foreach (string fileName in fileListWhereFound)
+                                {
+                                    nonRetinaNode.Nodes.Add(new TreeNode(fileName));
+                                }
+                                retinaRoot.Nodes.Add(nonRetinaNode);
+                            }
+
+                            if (!showOnlyEntriesWithNonRetinaCheckBox.Checked ||
+                                showOnlyEntriesWithNonRetinaCheckBox.Checked && retinaRoot.Nodes.Count > 0)
+                                _retina.ChangeData(string.Empty, retinaRoot);
+                            //retinaFinderTreeView.Nodes.Add(retinaRoot);
+
+                            //matchingFilesCheckedListBox.Items.Add(s, CheckState.Checked);
+                        }));
+                    //}
+                    });
+
+                    while (!Task.WhenAll(taskList).IsCompleted || _retina.QueueCount > 0)
+                    {
+                        int tasksRemaining = (int) taskList?.Count(x => !x.IsCompleted);
+                        UpdateStatus($@"{tasksRemaining} entries remaining to be processed | {_retina.QueueCount} in queue.", Color.Blue);
                     }
+                    // stop the process once the parallel is finally done.
+                    _retina.Stop();
 
-                    if (!showOnlyEntriesWithNonRetinaCheckBox.Checked || showOnlyEntriesWithNonRetinaCheckBox.Checked && retinaRoot.Nodes.Count > 0)
-                        retinaFinderTreeView.Nodes.Add(retinaRoot);
+                    UpdateStatus("All retina images examined!", Color.DarkGreen);
+                });
 
-                    //matchingFilesCheckedListBox.Items.Add(s, CheckState.Checked);
-                }
+                //process.Wait();
+                //await process;
+                //retina.Stop();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(this, ex.Message);
+            }
+        }
+
+        public static IEnumerable<string> GetFileList(string fileSearchPattern, string rootFolderPath, string findPattern)
+        {
+            Queue<string> pending = new Queue<string>();
+            pending.Enqueue(rootFolderPath);
+            while (pending.Count > 0 && !string.IsNullOrWhiteSpace(rootFolderPath))
+            {
+                rootFolderPath = pending.Dequeue();
+                List<string> tmp = new List<string>();
+                try
+                {
+                    string[] patterns = fileSearchPattern.Split('|');
+                    foreach (string pattern in patterns)
+                    {
+                        tmp.AddRange(Directory.GetFiles(rootFolderPath, pattern));
+                    }
+                    //tmp = Directory.GetFiles(rootFolderPath, fileSearchPattern);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    continue;
+                }
+                foreach (string t in tmp)
+                {
+                    string text = File.ReadAllText(t);
+                    if (text.Contains(findPattern))
+                    {
+                        yield return t;
+                    }
+                }
+                tmp = Directory.GetDirectories(rootFolderPath).ToList();
+                foreach (string t in tmp)
+                {
+                    pending.Enqueue(t);
+                }
+            }
+        }
+
+        private void RetinaAndNonRetinaFinder_Load(object sender, EventArgs e)
+        {
+            _retina.CallbackLog += CallbackChangeConsoleLog;
+            _retina.CallbackTree += CallbackChangeTreeView;
+
+            _retina.Start();
+        }
+
+        private void CallbackChangeConsoleLog(object sender, RetinaTaskResponse response)
+        {
+            if (consoleLogListBox.InvokeRequired)
+            {
+                consoleLogListBox.BeginInvoke(new Action(() =>
+                {
+                    consoleLogListBox.Items.Add(response.Message);
+                    consoleLogListBox.TopIndex = consoleLogListBox.Items.Count - 1;
+                }));
+            }
+            else
+            {
+                consoleLogListBox.Items.Add(response.Message);
+                consoleLogListBox.TopIndex = consoleLogListBox.Items.Count - 1;
+            }
+        }
+
+        private void CallbackChangeTreeView(object sender, RetinaTaskResponse response)
+        {
+            if (response.Node == null)
+            {
+                if (consoleLogListBox.InvokeRequired)
+                {
+                    consoleLogListBox.BeginInvoke(new Action(() =>
+                    {
+                        consoleLogListBox.Items.Add(response.Message + " and something was null");
+                        consoleLogListBox.TopIndex = consoleLogListBox.Items.Count - 1;
+                    }));
+                }
+                else
+                {
+                    consoleLogListBox.Items.Add(response.Message + " and something was null");
+                    consoleLogListBox.TopIndex = consoleLogListBox.Items.Count - 1;
+                }
                 return;
+            }
+            if (retinaFinderTreeView.InvokeRequired)
+            {
+                retinaFinderTreeView.BeginInvoke(new Action(() =>
+                {
+                    retinaFinderTreeView.Nodes.Add((TreeNode)response.Node.Clone());
+                }));
+            }
+            else
+            {
+                retinaFinderTreeView.Nodes.Add((TreeNode)response.Node.Clone());
+            }
+        }
+
+        private void ClearNodes()
+        {
+            if (retinaFinderTreeView.InvokeRequired)
+            {
+                retinaFinderTreeView.BeginInvoke(new Action(() =>
+                {
+                    retinaFinderTreeView.Nodes.Clear();
+                }));
+            }
+            else
+            {
+                retinaFinderTreeView.Nodes.Clear();
+            }
+        }
+
+        private void UpdateStatus(string message, Color color)
+        {
+            if (statusLabel.InvokeRequired)
+            {
+                statusLabel.BeginInvoke(
+                    new Action(
+                        () =>
+                        {
+                            statusLabel.Text = message;
+                            statusLabel.ForeColor = color;
+                        }));
+            }
+            else
+            {
+                statusLabel.Text = message;
+                statusLabel.ForeColor = color;
             }
         }
     }

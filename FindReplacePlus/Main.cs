@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FindReplacePlus
@@ -113,11 +108,7 @@ namespace FindReplacePlus
 
         private void replaceAllButton_Click(object sender, EventArgs e)
         {
-            List<string> filesToChange = new List<string>();
-            foreach (var o in matchingFilesCheckedListBox.CheckedItems)
-            {
-                filesToChange.Add(o.ToString());
-            }
+            List<string> filesToChange = (from object o in matchingFilesCheckedListBox.CheckedItems select o.ToString()).ToList();
             resultLabel.Text = $@"{ReplaceAllInFiles(filesToChange, findTextBox.Text, replaceTextBox.Text)} file(s) changed.";
         }
 

@@ -45,6 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\RetinaTask.cs" />
+    <Compile Include="Classes\RetinaTaskResponse.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>

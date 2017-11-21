@@ -38,12 +38,15 @@
             this.srcsetTextBox = new System.Windows.Forms.TextBox();
             this.srcsetLabel = new System.Windows.Forms.Label();
             this.showOnlyEntriesWithNonRetinaCheckBox = new System.Windows.Forms.CheckBox();
+            this.searchProcessLabel = new System.Windows.Forms.Label();
+            this.consoleLogListBox = new System.Windows.Forms.ListBox();
+            this.statusLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(9, 125);
+            this.label1.Location = new System.Drawing.Point(12, 282);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(244, 13);
             this.label1.TabIndex = 0;
@@ -77,9 +80,9 @@
             // 
             // retinaFinderTreeView
             // 
-            this.retinaFinderTreeView.Location = new System.Drawing.Point(12, 141);
+            this.retinaFinderTreeView.Location = new System.Drawing.Point(12, 298);
             this.retinaFinderTreeView.Name = "retinaFinderTreeView";
-            this.retinaFinderTreeView.Size = new System.Drawing.Size(1024, 589);
+            this.retinaFinderTreeView.Size = new System.Drawing.Size(1024, 432);
             this.retinaFinderTreeView.TabIndex = 10;
             this.retinaFinderTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.retinaFinderTreeView_AfterSelect);
             // 
@@ -121,11 +124,40 @@
             this.showOnlyEntriesWithNonRetinaCheckBox.UseVisualStyleBackColor = true;
             this.showOnlyEntriesWithNonRetinaCheckBox.CheckedChanged += new System.EventHandler(this.showOnlyEntriesWithNonRetinaCheckBox_CheckedChanged);
             // 
+            // searchProcessLabel
+            // 
+            this.searchProcessLabel.AutoSize = true;
+            this.searchProcessLabel.Location = new System.Drawing.Point(12, 152);
+            this.searchProcessLabel.Name = "searchProcessLabel";
+            this.searchProcessLabel.Size = new System.Drawing.Size(66, 13);
+            this.searchProcessLabel.TabIndex = 16;
+            this.searchProcessLabel.Text = "Console Log";
+            // 
+            // consoleLogListBox
+            // 
+            this.consoleLogListBox.FormattingEnabled = true;
+            this.consoleLogListBox.Location = new System.Drawing.Point(12, 168);
+            this.consoleLogListBox.Name = "consoleLogListBox";
+            this.consoleLogListBox.Size = new System.Drawing.Size(1024, 108);
+            this.consoleLogListBox.TabIndex = 17;
+            // 
+            // statusLabel
+            // 
+            this.statusLabel.AutoSize = true;
+            this.statusLabel.Location = new System.Drawing.Point(12, 113);
+            this.statusLabel.Name = "statusLabel";
+            this.statusLabel.Size = new System.Drawing.Size(52, 13);
+            this.statusLabel.TabIndex = 18;
+            this.statusLabel.Text = "Waiting...";
+            // 
             // RetinaAndNonRetinaFinder
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1048, 742);
+            this.Controls.Add(this.statusLabel);
+            this.Controls.Add(this.consoleLogListBox);
+            this.Controls.Add(this.searchProcessLabel);
             this.Controls.Add(this.showOnlyEntriesWithNonRetinaCheckBox);
             this.Controls.Add(this.srcsetLabel);
             this.Controls.Add(this.srcsetTextBox);
@@ -137,6 +169,7 @@
             this.Controls.Add(this.label1);
             this.Name = "RetinaAndNonRetinaFinder";
             this.Text = "Retina And Non-Retina Finder";
+            this.Load += new System.EventHandler(this.RetinaAndNonRetinaFinder_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -154,5 +187,8 @@
         private System.Windows.Forms.TextBox srcsetTextBox;
         private System.Windows.Forms.Label srcsetLabel;
         private System.Windows.Forms.CheckBox showOnlyEntriesWithNonRetinaCheckBox;
+        private System.Windows.Forms.Label searchProcessLabel;
+        private System.Windows.Forms.ListBox consoleLogListBox;
+        private System.Windows.Forms.Label statusLabel;
     }
 }
