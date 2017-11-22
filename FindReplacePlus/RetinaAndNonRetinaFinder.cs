@@ -111,7 +111,7 @@ namespace FindReplacePlus
                         {
                             TreeNode nonRetinaNode = new TreeNode(nonRetina);
                             List<string> fileListWhereFound =
-                                GetFileList(@"*.aspx|*.html|*.htm|*.css|*.scss|*.less|*.ascx|*.cshtml",
+                                GetFileList(fileSearchPatternTextBox.Text,
                                         baseFolderTextBox.Text,
                                         nonRetina.Replace(baseFolderTextBox.Text, string.Empty).Replace(@"\", @"/"))
                                     .ToList();
@@ -223,6 +223,8 @@ namespace FindReplacePlus
 
         private void RetinaAndNonRetinaFinder_Load(object sender, EventArgs e)
         {
+            fileSearchPatternTextBox.Text = @"*.aspx|*.html|*.htm|*.css|*.scss|*.less|*.ascx|*.cshtml|*.php";
+
             _retina.CallbackLog += CallbackChangeConsoleLog;
             _retina.CallbackTree += CallbackChangeTreeView;
 

@@ -42,12 +42,14 @@
             this.consoleLogListBox = new System.Windows.Forms.ListBox();
             this.statusLabel = new System.Windows.Forms.Label();
             this.showOnlyImageSetsFoundInFiles = new System.Windows.Forms.CheckBox();
+            this.fileSearchPatternTextBox = new System.Windows.Forms.TextBox();
+            this.fileSearchPatternLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 282);
+            this.label1.Location = new System.Drawing.Point(12, 304);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(244, 13);
             this.label1.TabIndex = 0;
@@ -81,9 +83,9 @@
             // 
             // retinaFinderTreeView
             // 
-            this.retinaFinderTreeView.Location = new System.Drawing.Point(12, 298);
+            this.retinaFinderTreeView.Location = new System.Drawing.Point(12, 320);
             this.retinaFinderTreeView.Name = "retinaFinderTreeView";
-            this.retinaFinderTreeView.Size = new System.Drawing.Size(1024, 432);
+            this.retinaFinderTreeView.Size = new System.Drawing.Size(1024, 410);
             this.retinaFinderTreeView.TabIndex = 10;
             this.retinaFinderTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.retinaFinderTreeView_AfterSelect);
             // 
@@ -117,7 +119,7 @@
             // showOnlyEntriesWithNonRetinaCheckBox
             // 
             this.showOnlyEntriesWithNonRetinaCheckBox.AutoSize = true;
-            this.showOnlyEntriesWithNonRetinaCheckBox.Location = new System.Drawing.Point(719, 109);
+            this.showOnlyEntriesWithNonRetinaCheckBox.Location = new System.Drawing.Point(719, 148);
             this.showOnlyEntriesWithNonRetinaCheckBox.Name = "showOnlyEntriesWithNonRetinaCheckBox";
             this.showOnlyEntriesWithNonRetinaCheckBox.Size = new System.Drawing.Size(225, 17);
             this.showOnlyEntriesWithNonRetinaCheckBox.TabIndex = 14;
@@ -127,7 +129,7 @@
             // searchProcessLabel
             // 
             this.searchProcessLabel.AutoSize = true;
-            this.searchProcessLabel.Location = new System.Drawing.Point(12, 152);
+            this.searchProcessLabel.Location = new System.Drawing.Point(12, 178);
             this.searchProcessLabel.Name = "searchProcessLabel";
             this.searchProcessLabel.Size = new System.Drawing.Size(66, 13);
             this.searchProcessLabel.TabIndex = 16;
@@ -136,7 +138,7 @@
             // consoleLogListBox
             // 
             this.consoleLogListBox.FormattingEnabled = true;
-            this.consoleLogListBox.Location = new System.Drawing.Point(12, 168);
+            this.consoleLogListBox.Location = new System.Drawing.Point(12, 194);
             this.consoleLogListBox.Name = "consoleLogListBox";
             this.consoleLogListBox.Size = new System.Drawing.Size(1024, 108);
             this.consoleLogListBox.TabIndex = 17;
@@ -153,18 +155,36 @@
             // showOnlyImageSetsFoundInFiles
             // 
             this.showOnlyImageSetsFoundInFiles.AutoSize = true;
-            this.showOnlyImageSetsFoundInFiles.Location = new System.Drawing.Point(719, 132);
+            this.showOnlyImageSetsFoundInFiles.Location = new System.Drawing.Point(719, 171);
             this.showOnlyImageSetsFoundInFiles.Name = "showOnlyImageSetsFoundInFiles";
             this.showOnlyImageSetsFoundInFiles.Size = new System.Drawing.Size(254, 17);
             this.showOnlyImageSetsFoundInFiles.TabIndex = 19;
             this.showOnlyImageSetsFoundInFiles.Text = "And only show image sets referenced in any files";
             this.showOnlyImageSetsFoundInFiles.UseVisualStyleBackColor = true;
             // 
+            // fileSearchPatternTextBox
+            // 
+            this.fileSearchPatternTextBox.Location = new System.Drawing.Point(719, 121);
+            this.fileSearchPatternTextBox.Name = "fileSearchPatternTextBox";
+            this.fileSearchPatternTextBox.Size = new System.Drawing.Size(317, 20);
+            this.fileSearchPatternTextBox.TabIndex = 21;
+            // 
+            // fileSearchPatternLabel
+            // 
+            this.fileSearchPatternLabel.AutoSize = true;
+            this.fileSearchPatternLabel.Location = new System.Drawing.Point(716, 105);
+            this.fileSearchPatternLabel.Name = "fileSearchPatternLabel";
+            this.fileSearchPatternLabel.Size = new System.Drawing.Size(300, 13);
+            this.fileSearchPatternLabel.TabIndex = 20;
+            this.fileSearchPatternLabel.Text = "File Search Pattern (* and ? wildcards allowed, | (pipe) delimits)";
+            // 
             // RetinaAndNonRetinaFinder
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1048, 742);
+            this.Controls.Add(this.fileSearchPatternTextBox);
+            this.Controls.Add(this.fileSearchPatternLabel);
             this.Controls.Add(this.showOnlyImageSetsFoundInFiles);
             this.Controls.Add(this.statusLabel);
             this.Controls.Add(this.consoleLogListBox);
@@ -202,5 +222,7 @@
         private System.Windows.Forms.ListBox consoleLogListBox;
         private System.Windows.Forms.Label statusLabel;
         private System.Windows.Forms.CheckBox showOnlyImageSetsFoundInFiles;
+        private System.Windows.Forms.TextBox fileSearchPatternTextBox;
+        private System.Windows.Forms.Label fileSearchPatternLabel;
     }
 }

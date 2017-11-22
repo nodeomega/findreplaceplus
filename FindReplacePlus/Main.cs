@@ -15,7 +15,7 @@ namespace FindReplacePlus
 
         private void Main_Load(object sender, EventArgs e)
         {
-            fileSearchPatternTextBox.Text = @"*.aspx|*.html|*.htm|*.css|*.scss|*.less|*.ascx|*.cshtml";
+            fileSearchPatternTextBox.Text = @"*.aspx|*.html|*.htm|*.css|*.scss|*.less|*.ascx|*.cshtml|*.php";
         }
 
         public void ChooseFolder()
